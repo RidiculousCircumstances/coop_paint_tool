@@ -14,6 +14,7 @@ const SettingBar = () => {
 				onClick={(e) => toolState.setLineWeight((e.target as HTMLInputElement).value as any)} />
 			<label htmlFor="stroke-color">Stroke color</label>
 			<input id="stroke-color"
+				className='strokePalette'
 					type="color"
 				onChange={(e) => toolState.setStrokeColor((e.target as HTMLInputElement).value)} />
 		

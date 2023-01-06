@@ -1,3 +1,4 @@
+import { observer } from 'mobx-react-lite';
 import React, { ChangeEvent } from 'react';
 import canvasState from '../store/canvasState';
 import toolState from '../store/toolState';
@@ -7,21 +8,24 @@ import { Circle } from '../tools/Circle';
 import { Eraser } from '../tools/Eraser';
 import { Line } from '../tools/Line';
 import { Rect } from '../tools/Rect';
+import { Button } from './Button';
+import cn from 'classnames';
 
-const Toolbar = () => {
+const Toolbar = observer (() => {
 
 	const changeColor = (e: ChangeEvent) => {
 		toolState.setStrokeColor((e.target as HTMLInputElement).value);
 		toolState.setFillColor((e.target as HTMLInputElement).value);
 	}
 
+
 	return ( 
-		<div className='toolbar'>
-			<button className='toolbar__btn brush' onClick={() => toolState.setTool(new Brush(canvasState.canvas!))} />
-			<button className='toolbar__btn rectangle' onClick={() => toolState.setTool(new Rect(canvasState.canvas!))} />
-			<button className='toolbar__btn circle' onClick={() => toolState.setTool(new Circle(canvasState.canvas!))} />
-			<button className='toolbar__btn line' onClick={() => toolState.setTool(new Line(canvasState.canvas!))} />
-			<button className='toolbar__btn eraser' onClick={() => toolState.setTool(new Eraser(canvasState.canvas!))} />
+		<div className='toolbar'>	
+			<Button className='brush' tool={ Brush } />
+			<Button className='rect' tool={ Rect} />
+			<Button className='circle' tool={ Circle } />
+			<Button className='line' tool={ Line } />
+			<Button className='eraser' tool={ Eraser } />
 			<input type='color'
 					className='toolbar__btn palette'
 					onChange={(e) => changeColor(e)} />
@@ -30,6 +34,6 @@ const Toolbar = () => {
 			<button className='toolbar__btn save'></button>
 		</div>
 	 );
-}
- 
+})
+
 export default Toolbar;
