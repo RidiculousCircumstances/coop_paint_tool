@@ -5,9 +5,47 @@ class CanvasState {
 	canvas: HTMLCanvasElement | null = null;
 	undoList: string[] = [];
 	redoList: string[] = [];
+	username: string = '';
+	socket: WebSocket | null = null;
+	sessionId: string = '';
+	width: number = 1200;
+	height: number = 800;
 
 	constructor() {
 		makeAutoObservable(this);
+	}
+
+	setWidth(w: number) {
+		if (w > 1800) {
+			this.width = 1800;
+		} else if (w < 400) {
+			this.width = 400;
+		} else  {
+			this.width = w;
+		}
+		
+	}
+
+	setHeigt(h: number) {
+		if (h > 800) {
+			this.height = 800;
+		} else if (h < 400) {
+			this.height = 400;
+		} else {
+			this.height = h;
+		}
+	}
+
+	setSessionId (id: string) {
+		this.sessionId = id;
+	}
+	
+	setSocket(socket: WebSocket) {
+		this.socket = socket;
+	}
+
+	setuserName (username: string) {
+		this.username = username;
 	}
 
 	setCanvas(canvas: HTMLCanvasElement | null) {

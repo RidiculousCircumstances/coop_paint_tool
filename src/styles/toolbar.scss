@@ -84,20 +84,25 @@
 	top: $toolbar-height;
 	font-family: "Noto Sans", sans-serif;
 	font-weight: 700;
-	color: rgb(43, 4, 43);
+	color: rgb(10, 1, 10);
 	label {
 		margin: 0 10px 0 15px;
 	}
 
 .strokePalette {
-	width: 30px;
-	height: 30px;
+	width: fit-content;
+	height: fit-content;
 
 	&:hover {
 			background-color: rgba(218, 253, 198, 0.596) !important;
 			border-radius: 5px;
 			border: 1px solid rgba(0, 15, 46, 0.521);
 		}
+}
+
+#stroke-color {
+	width: 30px;
+	height: 30px;
 }
 
 }

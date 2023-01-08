@@ -6,7 +6,7 @@ import { Tool } from '../tools/Tool';
 import canvasState from '../store/canvasState';
 
 interface INewTool extends DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> {
-	tool: new (canvas: HTMLCanvasElement) => Tool;
+	tool: new (canvas: HTMLCanvasElement, socket: WebSocket, sessionId: string) => Tool;
 }
 
 export const Button = observer ((
@@ -14,7 +14,7 @@ export const Button = observer ((
 ): JSX.Element => {
 
 	return (
-		<button onClick={() => toolState.setTool(new tool(canvasState.canvas!))} 
+		<button onClick={() => toolState.setTool(new tool(canvasState.canvas!, canvasState.socket!, canvasState.sessionId!))} 
 		className={cn(className,
 			'toolbar__btn', 
 			{ 'toolbar__btn--active': className === toolState.getToolName()})}/>

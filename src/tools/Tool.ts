@@ -1,43 +1,83 @@
+interface figStyle {
+	fillStyle: string,
+	lineWeight: number,
+	strokeColor: string
+}
+
 export abstract class Tool {
 
-	protected ctx: CanvasRenderingContext2D | null;
+	static ctx: CanvasRenderingContext2D | null;
 	protected mousedown: boolean = false;
-	protected startX: number = 0;
-	protected startY: number = 0;
+	protected static startX: number = 0;
+	protected static startY: number = 0;
 	protected currentX: number = 0;
 	protected currentY: number = 0;
-	protected savedImg: any = null;
+	protected static savedImg: any = null;
+	protected static canvas: HTMLCanvasElement;
 
-	constructor(protected canvas: HTMLCanvasElement) {
-		this.ctx = canvas.getContext('2d');
+	constructor(canvas: HTMLCanvasElement,
+				protected socket: WebSocket,
+				protected sessionId: string) {
+		Tool.ctx = canvas.getContext('2d');
+		Tool.canvas = canvas;
 		this.destroyEvents();
 	}
 
 	set fillColor (color: string) {
-		if (this.ctx) {
-			this.ctx.fillStyle = color;
+		if (Tool.ctx) {
+			Tool.ctx.fillStyle = color;
 		}
 	}
 
 	set strokeColor(color: string) {
-		if (this.ctx) {
-			this.ctx.strokeStyle = color;
+		if (Tool.ctx) {
+			Tool.ctx.strokeStyle = color;
 		}
 	}
 
 	set lineWidth(width: number) {
-		if (this.ctx) {
-			this.ctx.lineWidth = width;
+		if (Tool.ctx) {
+			Tool.ctx.lineWidth = width;
 		}
 	}
 
-	protected refreshImg (callback: CallableFunction) {
+	/**
+	 * Для заполняемых фигур
+	 * @param figCallback 
+	 * @param figStyle 
+	 * @param type 
+	 */
+	protected static switchDrawLogic(figCallback: CallableFunction, figStyle: figStyle, type: string, fillable: boolean = true) {
+		const drower = () => {
+			Tool.ctx?.beginPath();
+			figCallback();
+			if (fillable) {
+				Tool.ctx?.fill();
+			}
+			Tool.ctx?.stroke();
+		}
+
+		if (type !== 'stream') {
+			Tool.refreshImg(() => {
+				drower();
+			})
+		} else {
+			if (Tool.ctx) {
+				Tool.ctx.fillStyle = figStyle.fillStyle;
+				Tool.ctx.lineWidth = figStyle.lineWeight;
+				Tool.ctx.strokeStyle = figStyle.strokeColor;
+			}
+			drower();
+		}
+	}
+
+	protected static refreshImg (callback: CallableFunction) {
 		const img = new Image();
-		img.src = this.savedImg;
+		img.src = Tool.savedImg;
 
 		img.onload = async () => {
-			this.ctx?.clearRect(0, 0, this.canvas.width, this.canvas.height);
-			this.ctx?.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
+			Tool.ctx?.clearRect(0, 0, Tool.canvas.width, Tool.canvas.height);
+			Tool.ctx?.drawImage(img, 0, 0, Tool.canvas.width, Tool.canvas.height);
 			callback();
 		}
 	}
@@ -55,9 +95,9 @@ export abstract class Tool {
 	}
 
 	protected listen() {
-		this.canvas.onmouseup = this.mouseUpHandler.bind(this);
-		this.canvas.onmousedown = this.mouseDownHandler.bind(this);
-		this.canvas.onmousemove = this.mouseMoveHandler.bind(this);
+		Tool.canvas.onmouseup = this.mouseUpHandler.bind(this);
+		Tool.canvas.onmousedown = this.mouseDownHandler.bind(this);
+		Tool.canvas.onmousemove = this.mouseMoveHandler.bind(this);
 	}
 
 	protected mouseUpHandler(e: MouseEvent) {
@@ -66,16 +106,19 @@ export abstract class Tool {
 
 	protected mouseDownHandler(e: MouseEvent) {
 		this.mousedown = true;
-		this.ctx?.beginPath();
+		Tool.ctx?.beginPath();
+	}
+
+	protected streamDraw(e: MouseEvent, objectStream: any) {
+		this.socket.send(JSON.stringify(objectStream));
 	}
 	 
 	private destroyEvents () {
-		this.canvas.onmouseup = null;
-		this.canvas.onmousedown = null;
-		this.canvas.onmousemove = null;
+		Tool.canvas.onmouseup = null;
+		Tool.canvas.onmousedown = null;
+		Tool.canvas.onmousemove = null;
 	}
 
 	protected abstract mouseMoveHandler(e: MouseEvent): void;
 
-	protected abstract draw (...args: any) : void;
 }

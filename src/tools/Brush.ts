@@ -2,24 +2,51 @@ import { Tool } from './Tool';
 
 export class Brush extends Tool {
 
-	constructor (canvas: HTMLCanvasElement) {
-		super(canvas);
+	constructor(canvas: HTMLCanvasElement, socket: WebSocket, sessionId: string) {
+		super(canvas, socket, sessionId);
 		this.listen();
 	}
 
 	protected mouseDownHandler(e: MouseEvent) {
 		super.mouseDownHandler(e);
-		this.ctx?.moveTo(this.getCoordinates(e, 'x')!, this.getCoordinates(e, 'y')!);
+		Tool.ctx?.moveTo(this.getCoordinates(e, 'x')!, this.getCoordinates(e, 'y')!);
+	}
+
+	protected mouseUpHandler(e: MouseEvent) {
+		super.mouseUpHandler(e);
+		this.streamDraw(e, {
+			method: 'draw',
+			id: this.sessionId,
+			figure: {
+				type: 'finish'
+			}
+		});
 	}
 
 	protected mouseMoveHandler(e: MouseEvent) {
 		if (this.mousedown) {
-			this.draw(this.getCoordinates(e, 'x')!, this.getCoordinates(e, 'y')!);
+			this.streamDraw(e, {
+				method: 'draw',
+				id: this.sessionId,
+				figure: {
+					type: 'brush',
+					x: this.getCoordinates(e, 'x')!,
+					y: this.getCoordinates(e, 'y')!,
+					fillStyle: Tool.ctx?.fillStyle,
+					strokeColor: Tool.ctx?.strokeStyle,
+					lineWeight: Tool.ctx?.lineWidth
+				}
+			});
 		}
 	}
 
-	protected draw(x: number, y: number) {
-		this.ctx?.lineTo(x, y);
-		this.ctx?.stroke();
+	static draw(x: number, y: number, fillStyle: string = '', strokeColor: string = '', lineWeight: number = 0) {
+		Tool.ctx?.lineTo(x, y);
+		if (Tool.ctx) {
+			Tool.ctx.fillStyle = fillStyle;
+			Tool.ctx.strokeStyle = strokeColor;
+			Tool.ctx.lineWidth = lineWeight;
+		}
+		Tool.ctx?.stroke();
 	}
 }

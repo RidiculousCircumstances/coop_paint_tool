@@ -2,27 +2,51 @@ import { Tool } from './Tool';
 
 export class Eraser extends Tool {
 
-	constructor (canvas: HTMLCanvasElement) {
-		super(canvas);
+	constructor(canvas: HTMLCanvasElement, socket: WebSocket, sessionId: string) {
+		super(canvas, socket, sessionId);
 		this.listen();
 	}
 
 	protected mouseDownHandler(e: MouseEvent) {
 		super.mouseDownHandler(e);
-		this.ctx?.moveTo(this.getCoordinates(e, 'x')!, this.getCoordinates(e, 'y')!);
+		Tool.ctx?.moveTo(this.getCoordinates(e, 'x')!, this.getCoordinates(e, 'y')!);
+	}
+
+	protected mouseUpHandler(e: MouseEvent) {
+		super.mouseUpHandler(e);
+		this.streamDraw(e, {
+			method: 'draw',
+			id: this.sessionId,
+			figure: {
+				type: 'finish'
+			}
+		});
 	}
 
 	protected mouseMoveHandler(e: MouseEvent) {
 		if (this.mousedown) {
-			this.draw(this.getCoordinates(e, 'x')!, this.getCoordinates(e, 'y')!);
+
+			this.streamDraw(e, {
+				method: 'draw',
+				id: this.sessionId,
+				figure: {
+					type: 'eraser',
+					x: this.getCoordinates(e, 'x')!,
+					y: this.getCoordinates(e, 'y')!,
+					lineWeight: Tool.ctx?.lineWidth
+				}
+			});
+
+			Eraser.draw(this.getCoordinates(e, 'x')!, this.getCoordinates(e, 'y')!);
 		}
 	}
 
-	protected draw(x: number, y: number) {
-		if (this.ctx) {
-			this.ctx.strokeStyle = 'white';
+	static draw(x: number, y: number, lineWeight: number = 0, type: string = 'local') {
+		if (Tool.ctx) {
+			Tool.ctx.strokeStyle = 'white';
+			Tool.ctx.lineWidth = lineWeight;
 		}
-		this.ctx?.lineTo(x, y);
-		this.ctx?.stroke();
+		Tool.ctx?.lineTo(x, y);
+		Tool.ctx?.stroke();
 	}
 }

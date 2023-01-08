@@ -9,7 +9,6 @@ import { Eraser } from '../tools/Eraser';
 import { Line } from '../tools/Line';
 import { Rect } from '../tools/Rect';
 import { Button } from './Button';
-import cn from 'classnames';
 
 const Toolbar = observer (() => {
 
@@ -18,6 +17,17 @@ const Toolbar = observer (() => {
 		toolState.setFillColor((e.target as HTMLInputElement).value);
 	}
 
+	const download = () => {
+		console.log('sss');
+		const dataUrl = canvasState.canvas!.toDataURL();
+		const a = document.createElement('a');
+		a.href = dataUrl;
+		a.download = canvasState.sessionId + '.jpg';
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+	
+	}
 
 	return ( 
 		<div className='toolbar'>	
@@ -29,9 +39,9 @@ const Toolbar = observer (() => {
 			<input type='color'
 					className='toolbar__btn palette'
 					onChange={(e) => changeColor(e)} />
-			<button className='toolbar__btn undo' onClick={() => canvasState.undo()} />
+			<button className='toolbar__btn undo' onClick={() => {canvasState.undo()}} />
 			<button className='toolbar__btn redo' onClick={() => canvasState.redo()} />
-			<button className='toolbar__btn save'></button>
+			<button className='toolbar__btn save' onClick={() => download()}></button>
 		</div>
 	 );
 })
