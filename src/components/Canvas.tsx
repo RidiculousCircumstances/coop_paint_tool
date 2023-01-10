@@ -13,6 +13,7 @@ import { Line } from '../tools/Line';
 import { Eraser } from '../tools/Eraser';
 import axios from 'axios';
 import { CONST } from '../Const';
+import { BroadcastClient } from '../services/BroadcastClient';
 
 const Canvas = observer (() => {
 
@@ -20,6 +21,7 @@ const Canvas = observer (() => {
 	const params = useParams();
 
 	useEffect(() => {
+
 		canvasState.setCanvas(canvasRef.current);
 		canvasState.setSessionId(params.id!);
 		const ctx = (canvasRef.current as HTMLCanvasElement).getContext('2d');
@@ -39,6 +41,8 @@ const Canvas = observer (() => {
 	useEffect(() => {
 		if (canvasState.username !== '') {
 			const socket = new WebSocket(CONST.SOCKET_URL);
+			// const a = BroadcastClient.getInstance();
+			// a.notifyConnection();
 			canvasState.setSocket(socket);
 			toolState.setTool(new Brush(canvasRef.current as HTMLCanvasElement, socket, params.id!));
 
@@ -64,6 +68,7 @@ const Canvas = observer (() => {
 		}
 	}
 	}, [canvasState.username, params.id]);
+
 
 	useEffect (() => {
 		const ctx = (canvasRef.current as HTMLCanvasElement).getContext('2d');
